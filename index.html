@@ -316,8 +316,8 @@
         }
         @media (max-width: 578px) {
             .game-area {
-                height: calc(100vh - 10px);
-                min-height: calc(100vh - 10px);
+                height: calc(100vh - 100px);
+                min-height: calc(100vh - 100px);
             }
 
             .info-section {
@@ -354,6 +354,38 @@
             animation: jump 0.6s ease-in-out infinite;
             transform-origin: bottom center;
         }
+
+        /* Add styles for mobile navigation arrows */
+        .mobile-nav-arrows {
+            display: none;  /* Hidden by default */
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto 0;
+        }
+
+        .mobile-nav-arrow {
+            color: #1591c7;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px 20px;
+            user-select: none;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        .mobile-nav-arrow.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            /* ... existing mobile styles ... */
+            
+            .mobile-nav-arrows {
+                display: flex;  /* Show on mobile */
+            }
+        }
     </style>
 </head>
 <body>
@@ -363,6 +395,12 @@
             <div class="character" id="player"></div>
             <div class="dialogue-box" id="dialogue"></div>
             <div class="click-prompt" id="prompt">Click to continue →</div>
+        </div>
+        
+        <!-- Add mobile navigation arrows outside the game area -->
+        <div class="mobile-nav-arrows">
+            <div class="mobile-nav-arrow" id="mobilePrevButton">←</div>
+            <div class="mobile-nav-arrow" id="mobileNextButton">→</div>
         </div>
         <div class="info-section">
             <div class="level-info">
@@ -439,7 +477,9 @@
         const scenes = [
             {
                 month: 1,
-                dialogue: "Welcome to Automattic for Agencies!\n\nThis short game will walk you through what most agencies experience in their first year with our program.",
+                dialogue: window.innerWidth <= 768 ? 
+                    "Welcome to Automattic for Agencies!\n\nThis short game will walk you through what most agencies experience in their first year with our program.\n\n<span class='emphasize'>Note</span>: This experience designed for larger screens." :
+                    "Welcome to Automattic for Agencies!\n\nThis short game will walk you through what most agencies experience in their first year with our program.",
                 result: null,
                 description: "Welcome",
                 action: state => {
@@ -590,6 +630,15 @@
             } else {
                 character.classList.remove('excited');
             }
+
+            // Update mobile navigation arrows
+            const prevButton = document.getElementById('mobilePrevButton');
+            const nextButton = document.getElementById('mobileNextButton');
+            
+            if (prevButton && nextButton) {
+                prevButton.classList.toggle('disabled', state.currentScene === 0);
+                nextButton.classList.toggle('disabled', state.currentScene === scenes.length - 1 && state.showingResult);
+            }
         }
 
         function updateJourneySteps() {
@@ -736,8 +785,26 @@
             });
         });
 
+        // Add click handlers for mobile navigation arrows
+        document.getElementById('mobilePrevButton').addEventListener('click', () => {
+            if (state.currentScene > 0) {
+                navigateToScene(state.currentScene - 1);
+            }
+        });
+
+        document.getElementById('mobileNextButton').addEventListener('click', () => {
+            progressGame();
+        });
+
         // Start the first scene
         updateDisplay();
+
+        // Add window resize listener to update the message if needed
+        window.addEventListener('resize', () => {
+            if (state.currentScene === 0) {
+                updateDisplay();
+            }
+        });
     </script>
 </body>
 </html>
