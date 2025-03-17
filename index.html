@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Journey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #021a22;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .emphasize{
+            font-weight: 600;
+        }
+        .container {
+            display: grid;
+            grid-template-rows: minmax(425px, 50vh) 1fr;  /* Game area 50%, info section takes remaining */
+            gap: 20px;
+            height: 100vh;  /* Full viewport height */
+            overflow: hidden;  /* Prevent scrolling on container */
+            box-sizing: border-box;  /* Include padding and border in the width calculation */
+            padding: 5px;  /* Add some padding around the container */
+        }
+
+        .game-area {
+            border: 4px solid #1591c7;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;  /* Fill the grid cell */
+            box-sizing: border-box;  /* Include the border in width/height calculations */
+        }
+
+        .background-image {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: calc(50% - 24px);
+            height: calc(100% - 24px);
+            margin: 12px;
+            background: url('background_image.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;  /* Equal width for both sections */
+            gap: 20px;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .journey-progress {
+            width: 100%;  /* Take full width of grid cell */
+            overflow-y: auto;
+        }
+
+        .level-info, .additional-info {
+            border: 4px solid #1591c7;
+            padding: 10px;
+            font-size: 12px;
+            overflow-y: auto;
+        }
+
+        .level-info {
+            position: relative;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #1591c7 #001133;
+        }
+
+        .character {
+            width: 192px;
+            height: 192px;
+            position: absolute;
+            bottom: 20px;
+            left: 20%;
+            background: url('agency_person_1.svg') no-repeat center center;
+            background-size: contain;
+            transition: left 1s ease-in-out;
+        }
+
+        .dialogue-box {
+            position: absolute;
+            top: 50%;
+            left: calc(50% + 20px);
+            transform: translateY(-50%);
+            background: #fff;
+            border: 2px solid #1591c7;
+            padding: 20px;
+            width: 40%;
+            font-size: 16px;
+            font-weight: 400;
+            font-family: Inter, sans-serif;
+            line-height: 1.5;
+            display: none;
+            white-space: pre-line;
+            color: #000;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #001;
+            border: 2px solid #1591c7;
+            padding: 10px;
+            font-size: 12px;
+            text-align: right;
+        }
+
+        .click-prompt {
+            position: absolute;
+            bottom: 20px;
+            left: calc(50% + 20px);
+            color: #1591c7;
+            font-size: 10px;
+            width: 40%;
+        }
+
+        .click-prompt.blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Make styles consistent between journey steps and benefits */
+        .journey-step, .benefit-item {
+            margin: 8px 0;
+            opacity: 0.3;
+            transition: opacity 0.5s;
+            font-size: 10px;
+            padding: 1px 0;
+        }
+
+        .journey-step.current, .journey-step.completed, .benefit-item.unlocked {
+            opacity: 1;
+        }
+
+        .journey-step.current {
+            color: #1591c7;
+        }
+
+        .month-label, .benefit-category {
+            color: #1591c7;
+            font-size: 8px;
+            margin: 15px 0 5px 0;
+        }
+
+        .level-info h2 {
+            margin-right: 150px;
+        }
+
+        /* Remove individual style definitions that are now combined above */
+        .benefit-item, .benefit-category, .journey-step, .month-label {
+            /* These styles are now handled by the combined selectors above */
+        }
+
+        /* Add styles for clickable journey steps */
+        .journey-step {
+            margin: 8px 0;
+            opacity: 0.3;
+            transition: opacity 0.5s;
+            font-size: 10px;
+            padding: 1px 0;
+            cursor: pointer;  /* Show pointer on hover */
+        }
+
+        .journey-step:hover {
+            text-decoration: underline;
+            color: #1591c7;
+        }
+
+        /* Prevent hover effect on current step */
+        .journey-step.current:hover {
+            text-decoration: none;
+        }
+
+        /* Add style for links in dialogue box */
+        .dialogue-box a {
+            color: #0066cc;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .dialogue-box a:hover {
+            color: #004499;
+        }
+
+        /* Update button styling */
+        .cta-button {
+            display: inline-block;
+            background-color:#f3b935;
+            color: #021a22 !important;  /* Override any link colors */
+            padding: 15px 25px;
+            cursor: pointer;
+            margin-top: 15px;
+            text-decoration: none !important;  /* Override any link underlines */
+            position: relative;
+            border: none;
+        }
+
+        /* Update animated dotted border */
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: -4px;  /* Increased from -2px */
+            left: -4px;  /* Increased from -2px */
+            right: -4px;  /* Increased from -2px */
+            bottom: -4px;  /* Increased from -2px */
+            background: linear-gradient(90deg, #1591c7 50%, transparent 50%),
+                        linear-gradient(0deg, #1591c7 50%, transparent 50%),
+                        linear-gradient(90deg, #1591c7 50%, transparent 50%),
+                        linear-gradient(0deg, #1591c7 50%, transparent 50%);
+            background-repeat: repeat-x, repeat-y, repeat-x, repeat-y;
+            background-size: 16px 4px, 4px 16px, 16px 4px, 4px 16px;  /* Doubled from 8px/2px */
+            background-position: 0 0, 100% 0, 0 100%, 0 0;
+            animation: moveLines 1s infinite linear;
+        }
+
+        @keyframes moveLines {
+            0% {
+                background-position: 0 0, 100% 0, 0 100%, 0 0;
+            }
+            100% {
+                background-position: 32px 0, 100% 32px, -32px 100%, 0 -32px;  /* Doubled from 16px */
+            }
+        }
+
+        .cta-button:hover::before {
+            animation-duration: 0.5s;
+        }
+
+        @media (max-width: 1024px) {
+            .background-image, .character {
+                display: none;  /* Hide background and character */
+            }
+
+            .game-area {
+                display: flex;
+                align-items: center;  /* Center vertically */
+                justify-content: center;  /* Center horizontally */
+                padding: 20px;
+            }
+
+            .dialogue-box {
+                position: static;  /* Remove absolute positioning */
+                width: 100%;  /* Full width */
+                margin: 0;  /* Remove margins */
+                max-width: 600px;  /* Limit maximum width for readability */
+                transform: none;
+            }
+            .info-section{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .additional-info {
+                width: 100%;
+            }
+
+            .container {
+                padding: 10px;  /* Reduce container padding for more space */
+            }
+
+            .level-info{
+                display: none;
+            }
+        }
+
+
+
+        /* New media query for mobile devices */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;  /* Enable scrolling on body */
+                height: auto;  /* Allow body to expand */
+            }
+            
+            .container {
+                display: block;  /* Change from grid to block */
+                height: auto;  /* Allow container to expand */
+                min-height: unset;  /* Remove min-height constraint */
+                overflow: visible;  /* Allow content to be visible */
+            }
+            
+            .game-area {
+                height: 100vh;  /* Full viewport height */
+                min-height: 100vh;
+                margin-bottom: 20px;  /* Add space between sections */
+            }
+
+            .info-section {
+                height: auto;  /* Allow natural height */
+                min-height: 100vh;
+            }
+
+            .additional-info {
+                height: auto;  /* Allow natural height */
+                min-height: 100vh;
+            }
+        }
+        @media (max-width: 578px) {
+            .game-area {
+                height: calc(100vh - 10px);
+                min-height: calc(100vh - 10px);
+            }
+
+            .info-section {
+                min-height: 100vh;
+            }
+
+            .additional-info {
+                height: calc(100vh - 60px);
+                min-height: calc(100vh - 60px);
+            }
+
+            .container {
+                grid-template-rows: 100vh auto;
+                height: auto;
+                min-height: 200vh;
+                overflow: visible;
+                display: block;
+            }
+        }
+
+        @keyframes jump {
+            0% { 
+                transform: translateY(0);
+            }
+            50% { 
+                transform: translateY(-20px);  /* Jump up */
+            }
+            100% { 
+                transform: translateY(0);  /* Back down */
+            }
+        }
+
+        .character.excited {
+            animation: jump 0.6s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-area" id="gameArea">
+            <div class="background-image"></div>
+            <div class="character" id="player"></div>
+            <div class="dialogue-box" id="dialogue"></div>
+            <div class="click-prompt" id="prompt">Click to continue →</div>
+        </div>
+        <div class="info-section">
+            <div class="level-info">
+                <h2>Journey Progress</h2>
+                <div class="status" id="status">
+                    Month: <span id="month">1</span><br>
+                    Sites: <span id="sites">0</span><br>
+                    Woo Stores: <span id="wooStores">0</span><br>
+                    <span id="tierLabel">Account Activated</span><span id="tierSeparator" style="display: none;">: </span><span id="tier" style="display: none;">New Partner</span>
+                </div>
+                <div id="journeySteps">
+                    <div class="journey-step" id="step-0">
+                        <div class="month-label">START</div>
+                        Welcome
+                    </div>
+                    <div class="journey-step" id="step-1">
+                        <div class="month-label">MONTH 1</div>
+                        First Migration: 5 Sites
+                    </div>
+                    <div class="journey-step" id="step-2">
+                        <div class="month-label">INFO</div>
+                        Understanding IAR
+                    </div>
+                    <div class="journey-step" id="step-3">
+                        <div class="month-label">MONTH 2</div>
+                        Scale Up: 15 More Sites
+                    </div>
+                    <div class="journey-step" id="step-4">
+                        <div class="month-label">MONTH 3</div>
+                        First WooCommerce Store
+                    </div>
+                    <div class="journey-step" id="step-5">
+                        <div class="month-label">MONTH 5</div>
+                        Agency Partner Status
+                    </div>
+                    <div class="journey-step" id="step-6">
+                        <div class="month-label">MONTH 6</div>
+                        WooCommerce Team Support
+                    </div>
+                    <div class="journey-step" id="step-7">
+                        <div class="month-label">MONTH 10</div>
+                        Pro Partner Status
+                    </div>
+                    <div class="journey-step" id="step-8">
+                        <div class="month-label">MONTH 12</div>
+                        Year One Wrap Up!
+                    </div>
+                </div>
+            </div>
+            <div class="additional-info">
+                <h2>Benefits</h2>
+                <div id="benefits">
+                    <div class="benefit-category">Account Activated - Free</div>
+                    <div class="benefit-item" id="benefit-dashboard">✓ Site management dashboard</div>
+                    <div class="benefit-item" id="benefit-earnings">✓ Reseller & referral earning opportunities</div>
+                    <div class="benefit-item" id="benefit-support">✓ Centralized support</div>
+                    <div class="benefit-item" id="benefit-coselling">✓ Co-selling support w/ Automattic sales team</div>
+                    
+                    <div class="benefit-category">Agency Partner - $1,200 IAR</div>
+                    <div class="benefit-item" id="benefit-website">✓ Free agency website (coming soon)</div>
+                    <div class="benefit-item" id="benefit-directory">✓ Directory inclusion</div>
+                    
+                    <div class="benefit-category">Pro Partner - $5,000 IAR</div>
+                    <div class="benefit-item" id="benefit-manager">✓ Dedicated partner manager</div>
+                    <div class="benefit-item" id="benefit-leads">✓ Site-build leads</div>
+                    <div class="benefit-item" id="benefit-input">✓ Program advisory board access</div>
+                    <div class="benefit-item" id="benefit-comarketing">✓ Co-marketing opportunities</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const scenes = [
+            {
+                month: 1,
+                dialogue: "Welcome to Automattic for Agencies!\n\nThis short game will walk you through what most agencies experience in their first year with our program.",
+                result: null,
+                description: "Welcome",
+                action: state => {
+                    // No state changes in welcome
+                }
+            },
+            {
+                month: 1,
+                dialogue: "Most agencies are surprised that the program is free and that they get such a good deal on hosting and other extensions. We throw in a cool site management dashboard and dedicated agency support as well.\n\nSince many agencies haven't used WordPress.com or Pressable hosting before, they normally start with migrating over a few sites to test things out.\n\nClick to see what most agencies say after trying us out →",
+                result: "Wow! Is a typical response we get. They are normally surprised with <a href='https://pressable.com/features/build/wordpress-cloud-hosting-platform/' target='_blank' class='emphasize'>how fast our hosting is</a> and how much it simplified their workflow with our built-in real time backups, security and server optimizations. \n\nRight now we are offering <a href='https://automattic.com/for-agencies/program-incentives/' target='_blank' class='emphasize'>$100 for every site migrated over</a> and are doing the migrations for free which also delights agencies.\n\nLet's take a quick detour to talk about our partner tiers →",
+                description: "First Migration: 5 Sites",
+                action: state => {
+                    state.sites += 5;
+                }
+            },
+            {
+                month: 1,
+                dialogue: "Everyone who signs up for the program and activates their account already has access to many free tools and benefits. See the Benefits box below for an abbreviated list.\n\nAgencies advance through tiers and gain access to more benefits based on their Influenced Automattic Revenue (IAR). IAR is recognized in two ways:\n\n• Each dollar spent on products, including bulk plugin or hosting purchases, is counted as one dollar of IAR\n\n• For WooPayments referrals: $1 of IAR will be recognized for every $100 referred in Total Payments Volume (TPV)",
+                result: null,
+                description: "Understanding IAR",
+                action: state => {
+                    // No state changes in IAR explanation
+                }
+            },
+            {
+                month: 2,
+                dialogue: "After a few months of using our hosting, agencies and their clients telling them their sites are faster, most agencies decide to move over more sites. <a href='https://automattic.com/for-agencies/program-incentives/' target='_blank' class='emphasize'>Prices drop with more sites hosted</a>, so it's normally an easy choice.\n\nAt 20 sites now in our centralized dashboard, if agencies didn't already have a solution for managing their sites, they are seeing how convenient it is to have everything in one place for plugin updates, backups and more.",
+                result: null,
+                description: "Scaling up migrations",
+                action: state => {
+                    state.sites += 15;
+                }
+            },
+            {
+                month: 3,
+                dialogue: "After experiencing our hosting, agencies typically talk with their clients and explore switching to <a href='https://woocommerce.com/payments/' target='_blank' class='emphasize'>WooPayments</a> for their ecommerce sites. If agencies aren't familiar with WooPayments, our sales staff is happy to hop on a call to talk through what sets this apart. \n\nWith the switch, clients are normally very happy to have a simplifies site management experience and agencies love getting <a href='https://automattic.com/for-agencies/program-incentives/' target='_blank' class='emphasize'>a rev share</a> for payments processed on their clients' sites. \n\nSince we recognize $1 of IAR for every $100 in TPV, agencies find this to be the fastest way to grow in the Automattic for Agencies program.",
+                result: null,
+                description: "Adding WooCommerce",
+                action: state => {
+                    state.wooStores += 1;
+                }
+            },
+            {
+                month: 5,
+                dialogue: "With several clients' sites on WooPayments, and a number of sites moved over to Pressable or WordPress.com, agencies can become Agency Partners and are able <a href='https://agencieshelp.automattic.com/knowledge-base/agency-directory-listings//' target='_blank' class='emphasize'>to apply to be in our agency directories</a> within 6 months or less at times. \n\nWe offer listings on WordPress.com, Pressable, WooCommerce.com and Jetpack depending on what products agencies are utilizing in the program.\n\nThese directories are a concrete growth driver for agencies.",
+                result: null,
+                description: "Agency Partner Benefits Unlocked",
+                action: state => {
+                    state.tier = "Agency Partner";
+                }
+            },
+            {
+                month: 6,
+                dialogue: "By month 6, most of our partners have engaged with our support team and appreciate the streamlined experience. Rather than tracking down multiple support contacts across different services, they now have centralized access to support for all our hosting solutions, extensions, and plugins in one place. \n\nHaving a dedicated team that specializes in agency needs and helps navigate our diverse product offerings has proven to be a game changer for our partners.",
+                result: null,
+                description: "WooCommerce Team Support",
+                action: state => {
+                    state.wooStores += 3;
+                }
+            },
+            {
+                month: 10,
+                dialogue: "Coming up on on the end of their first year, if agencies have sites with substantial WooPayments volume or they are hosting a large number of sites on Pressable or WordPress.com, they are already reaching Pro Partner status. \n\nTheir dedicated partner manager is now sending them high quality leads and helping with strategic input. The deals we pass to our Pro Partners are typically ~$15k USD.\n\n They are also helping to shape the future of the program and are invited to join our advisory board.",
+                result: null,
+                description: "Pro Partner Benefits Unlocked",
+                action: state => {
+                    state.tier = "Pro Partner";
+                    state.wooStores += 4
+                }
+            },
+            {
+                month: 12,
+                dialogue: "Here's where many agencies stand after one year of partnering:\n\n🚀 They have higher quality hosting, that includes more and is cheaper than what they are currently paying.\n\n📢 They are now in a directory and getting reached out to by clients directly.\n\n💰 They have earned thousands of dollars for migrating sites over.\n\n🙌 They have a partner manager that is sending them leads.",
+                result: "We are just getting started and our current partners are thriving. If that sounds like something your agency would like to explore, sign up for a quick call with a partner manager to learn more how our program can help your agency grow.\n\n<a href='https://savvycal.com/automattic-for-agencies/chat-with-shane' target='_blank' class='cta-button emphasize'>Schedule a call with a Partner Manager</a>",
+                description: "Lead Generation Program",
+                action: state => {
+                    return "Now receiving qualified leads!";
+                }
+            }
+        ];
+
+        const state = {
+            currentScene: 0,
+            sites: 0,
+            wooStores: 0,
+            tier: "New Partner",
+            showingResult: false
+        };
+
+        const dialogue = document.getElementById('dialogue');
+        const status = document.getElementById('status');
+        const benefits = document.getElementById('benefits');
+        const month = document.getElementById('month');
+        const sitesDisplay = document.getElementById('sites');
+        const wooStoresDisplay = document.getElementById('wooStores');
+        const tierDisplay = document.getElementById('tier');
+        const prompt = document.getElementById('prompt');
+
+        function updatePrompt() {
+            if (state.currentScene === 0 && !state.showingResult) {
+                prompt.textContent = "Press SPACE, CLICK or use arrow keys as navigate →";
+                prompt.classList.add('blink');
+            } else {
+                prompt.textContent = state.showingResult ? 
+                    "Press SPACE or CLICK for next month →" : 
+                    "Press SPACE or CLICK to continue →";
+                prompt.classList.remove('blink');
+            }
+        }
+
+        function updateDisplay() {
+            const scene = scenes[state.currentScene];
+            dialogue.innerHTML = state.showingResult ? scene.result : scene.dialogue;
+            dialogue.style.display = 'block';
+            month.textContent = scene.month;
+            sitesDisplay.textContent = state.sites;
+            wooStoresDisplay.textContent = state.wooStores;
+            
+            // Update tier display based on status
+            const tierLabel = document.getElementById('tierLabel');
+            const tierSeparator = document.getElementById('tierSeparator');
+            if (state.tier === "New Partner") {
+                tierLabel.textContent = "Account Activated";
+                tierSeparator.style.display = "none";
+                tierDisplay.style.display = "none";
+            } else {
+                tierLabel.textContent = "Tier";
+                tierSeparator.style.display = "inline";
+                tierDisplay.style.display = "inline";
+                tierDisplay.textContent = state.tier;
+            }
+            
+            updateBenefits();
+            updateJourneySteps();
+            updatePrompt();
+
+            // Only show the click prompt on the first screen
+            if (state.currentScene === 0 && !state.showingResult) {
+                prompt.style.display = 'block';
+            } else {
+                prompt.style.display = 'none';
+            }
+
+            // Add wiggle animation on final scene
+            const character = document.getElementById('player');
+            if (state.currentScene === scenes.length - 1) {
+                character.classList.add('excited');
+            } else {
+                character.classList.remove('excited');
+            }
+        }
+
+        function updateJourneySteps() {
+            const steps = document.querySelectorAll('.journey-step');
+            steps.forEach((step, index) => {
+                if (index < state.currentScene) {
+                    step.classList.add('completed');
+                    step.classList.remove('current');
+                } else if (index === state.currentScene) {
+                    step.classList.add('current');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('completed', 'current');
+                }
+            });
+        }
+
+        function updateBenefits() {
+            // Base level benefits (always unlocked)
+            ['dashboard', 'earnings', 'support', 'coselling'].forEach(id => {
+                document.getElementById(`benefit-${id}`).classList.add('unlocked');
+            });
+            
+            // Partner benefits
+            if (state.tier === "Agency Partner" || state.tier === "Pro Partner") {
+                ['website', 'directory'].forEach(id => {
+                    document.getElementById(`benefit-${id}`).classList.add('unlocked');
+                });
+            }
+            
+            // Pro Partner benefits
+            if (state.tier === "Pro Partner") {
+                ['manager', 'leads', 'input', 'comarketing'].forEach(id => {
+                    document.getElementById(`benefit-${id}`).classList.add('unlocked');
+                });
+            }
+        }
+
+        function navigateToScene(sceneIndex) {
+            state.currentScene = sceneIndex;
+            state.showingResult = false;
+            
+            // Update state based on previous scenes
+            state.sites = 0;
+            state.wooStores = 0;
+            state.tier = "New Partner";
+            
+            // Apply all changes from previous scenes
+            for (let i = 0; i < sceneIndex; i++) {
+                scenes[i].action(state);
+            }
+            
+            // Update character position
+            const player = document.getElementById('player');
+            const newPosition = 5 + (sceneIndex * 4); // Smaller increments to stay within left half
+            player.style.left = `${Math.min(newPosition, 45)}%`; // Cap at 45% to stay within left half
+            
+            updateDisplay();
+        }
+
+        function progressGame() {
+            if (state.currentScene < scenes.length) {
+                if (!state.showingResult) {
+                    scenes[state.currentScene].action(state);
+                    
+                    // Move character based on current scene, but stay within left half
+                    const player = document.getElementById('player');
+                    const newPosition = 5 + (state.currentScene * 4); // Smaller increments to stay within left half
+                    player.style.left = `${Math.min(newPosition, 45)}%`; // Cap at 45% to stay within left half
+                    
+                    // If there's no result message, move directly to next scene
+                    if (scenes[state.currentScene].result === null) {
+                        state.currentScene++;
+                        updateDisplay();
+                    } else {
+                        state.showingResult = true;
+                        updateDisplay();
+                    }
+                } else {
+                    // Don't progress if we're on the last scene showing the result
+                    if (state.currentScene === scenes.length - 1) {
+                        return;
+                    }
+                    state.currentScene++;
+                    state.showingResult = false;
+                    updateDisplay();
+                }
+            }
+        }
+
+        // Update restart function
+        function restartGame() {
+            // Reset state
+            state.currentScene = 0;
+            state.sites = 0;
+            state.wooStores = 0;
+            state.tier = "New Partner";
+            state.showingResult = false;
+
+            // Reset all benefits to locked state
+            document.querySelectorAll('.benefit-item').forEach(benefit => {
+                benefit.classList.remove('unlocked');
+            });
+
+            // Reset journey steps
+            document.querySelectorAll('.journey-step').forEach(step => {
+                step.classList.remove('completed', 'current');
+            });
+
+            updateDisplay();
+        }
+
+        document.getElementById('gameArea').addEventListener('click', progressGame);
+        
+        // Update keydown event listener to handle all keys
+        document.addEventListener('keydown', (event) => {
+            event.preventDefault(); // Prevent page scrolling
+            
+            switch(event.code) {
+                case 'Space':
+                    progressGame();
+                    break;
+                case 'Enter':
+                    if (state.currentScene >= scenes.length) {
+                        restartGame();
+                    }
+                    break;
+                case 'ArrowRight':
+                    progressGame();
+                    break;
+                case 'ArrowLeft':
+                    if (state.currentScene > 0) {
+                        navigateToScene(state.currentScene - 1);
+                    }
+                    break;
+            }
+        });
+
+        // Add click handlers to journey steps
+        document.querySelectorAll('.journey-step').forEach((step, index) => {
+            step.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent game area click
+                navigateToScene(index);
+            });
+        });
+
+        // Start the first scene
+        updateDisplay();
+    </script>
+</body>
+</html>

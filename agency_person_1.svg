@@ -1,0 +1,23 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122 216" width="122" height="216">
+	<title>SCR-20250316-thfe</title>
+	<style>
+		.s0 { fill:#FFFFFF } 
+		.s1 { fill: #304151 } 
+		.s2 { fill: #ba610c } 
+		.s3 { fill: #526676 } 
+		.s4 { fill: #f3b935 } 
+		.s5 { fill: #f9c499 } 
+		.s6 { fill: #574231 } 
+		.s7 { fill: #f6ad89 } 
+	</style>
+	<g id="Layer 2">
+		<path id="Path 0" class="s0" d="m54 138v-44h18v44z"/>
+		<path id="Path 1" class="s1" d="m28 138v-35h9v35zm61 0v-35h9v35zm-43 9h8v-9h18v9h8v9h9v35h-17v-27h-18v27h-17v-35h9z"/>
+		<path id="Path 2" class="s2" d="m37 68h-9v-9h-9v-26h9v-9h18v-9h34v9h18v4 2 3h9v26h-9v9h-9v-27h-44v9h-8z"/>
+		<path id="Path 3" class="s3" d="m37 103v-8h9v52 9h-9v-1-17zm43 44v-52h9v8 35 17 1h-9zm-26 44v8h-26v-8h9zm35 0h9v8h-26v-8z"/>
+		<path id="Path 4" class="s4" d="m46 95v-10h8v9 44 9h-8zm26-1v-9h8v10 52h-8v-9z"/>
+		<path id="Path 5" class="s5" d="m37 68v-18h8v-9h44v27 8h-9v9h-8v9h-18v-9h-8v-9h-9zm0 87h-9v-17h9zm52 0v-17h9v17z"/>
+		<path id="Path 6" class="s6" d="m46 51h8v7h-8zm26 0h8v7h-8z"/>
+		<path id="Path 7" class="s7" d="m55 68h16v8h-16z"/>
+	</g>
+</svg>
